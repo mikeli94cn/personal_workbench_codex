@@ -1,16 +1,15 @@
 // Apply before styles load to avoid flashing the default palette on return visits.
 (() => {
   const themes = [
-    ['sky', 'Sky blue · Clear'],
-    ['mint', 'Fresh mint · Calm'],
-    ['lavender', 'Lavender · Dreamy'],
-    ['peach', 'Peach · Warm'],
-    ['rose', 'Rose · Cheerful']
+    ['sakura', 'Sakura Blossom'],
+    ['clow', 'Clow Grimoire'],
+    ['star', 'Pink Star Wand'],
+    ['crystal', 'Clear Card Crystal']
   ];
   const translate = text => window.workbenchI18n ? window.workbenchI18n.t(text) : text;
   const key = 'workbench.theme';
   const valid = value => themes.some(([id]) => id === value);
-  let selected = 'sky';
+  let selected = 'sakura';
   try {
     const saved = localStorage.getItem(key);
     if (valid(saved)) selected = saved;
@@ -41,7 +40,7 @@
     });
     window.addEventListener('storage', event => {
       if (event.key !== key && event.key !== null) return;
-      const theme = valid(event.newValue) ? event.newValue : 'sky';
+      const theme = valid(event.newValue) ? event.newValue : 'sakura';
       document.documentElement.dataset.theme = theme;
       select.value = theme;
       hint.dataset.message = 'Choose a color for your mood.'; hint.textContent = translate('Choose a color for your mood.');

@@ -60,3 +60,8 @@ function calendarOverview(tasks, year, month, selectedWeek, reference = new Date
 }
 
 if (typeof module !== 'undefined') module.exports = { calendarDateKey, calendarDays, groupCalendarTasks, taskPeriod, matchesTaskView, calendarOverview };
+
+function periodTasks(tasks, type, period) {
+  return tasks.filter(task => (task.taskType || 'DAILY') === type && task.dueDate && task.dueDate >= period.start && task.dueDate <= period.end);
+}
+if (typeof module !== 'undefined') module.exports.periodTasks = periodTasks;

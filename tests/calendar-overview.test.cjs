@@ -37,3 +37,17 @@ test('overview preserves the filtered input order for both lists', () => {
   assert.deepEqual(result.weekly, filtered);
   assert.deepEqual(result.monthly, filtered);
 });
+
+test('period task lists separate types, include completed tasks, and respect boundaries', () => {
+  const { periodTasks } = require('../src/main/resources/static/calendar.js');
+  const tasks = [
+    {id:1, taskType:'WEEKLY', dueDate:'2026-11-02', completed:true},
+    {id:2, taskType:'MONTHLY', dueDate:'2026-11-02'},
+    {id:3, dueDate:'2026-11-02'},
+    {id:4, taskType:'WEEKLY', dueDate:'2026-11-08'},
+    {id:5, taskType:'WEEKLY', dueDate:'2026-11-09'},
+    {id:6, taskType:'WEEKLY', dueDate:null}
+  ];
+  assert.deepEqual(periodTasks(tasks, 'WEEKLY', {start:'2026-11-02', end:'2026-11-08'}).map(t=>t.id), [1,4]);
+  assert.deepEqual(periodTasks(tasks, 'MONTHLY', {start:'2026-11-01', end:'2026-11-30'}).map(t=>t.id), [2]);
+});

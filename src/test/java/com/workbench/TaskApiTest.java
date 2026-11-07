@@ -69,6 +69,31 @@ class TaskApiTest {
         mvc.perform(delete("/api/tasks/" + id)).andExpect(status().isNoContent());
     }
 
+    @Test void periodTaskTypesPersistAndValidate() throws Exception {
+        var input = json.createObjectNode().put("title", "Weekly plan").put("notes", "")
+            .put("priority", "MEDIUM").put("completed", false).put("dueDate", "2026-11-04")
+            .put("taskType", "WEEKLY");
+        String response = mvc.perform(post("/api/tasks").contentType("application/json").content(input.toString()))
+            .andExpect(status().isCreated()).andExpect(jsonPath("$.taskType").value("WEEKLY"))
+            .andReturn().getResponse().getContentAsString();
+        long id = json.readTree(response).get("id").asLong();
+        input.remove("taskType"); input.put("completed", true);
+        mvc.perform(put("/api/tasks/" + id).contentType("application/json").content(input.toString()))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.taskType").value("WEEKLY"));
+        input.put("taskType", "MONTHLY");
+        mvc.perform(put("/api/tasks/" + id).contentType("application/json").content(input.toString()))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.taskType").value("MONTHLY"));
+        input.putNull("dueDate");
+        mvc.perform(put("/api/tasks/" + id).contentType("application/json").content(input.toString()))
+            .andExpect(status().isBadRequest());
+        input.put("taskType", "INVALID");
+        mvc.perform(post("/api/tasks").contentType("application/json").content(input.toString()))
+            .andExpect(status().isBadRequest());
+        input.remove("taskType");
+        mvc.perform(post("/api/tasks").contentType("application/json").content(input.toString()))
+            .andExpect(status().isCreated()).andExpect(jsonPath("$.taskType").value("DAILY"));
+    }
+
     @Test void rejectsInvalidInput() throws Exception {
         for (String input : new String[]{
             "{\"title\":\"   \",\"notes\":\"\",\"priority\":\"LOW\",\"completed\":false}",

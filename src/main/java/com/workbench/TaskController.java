@@ -21,7 +21,7 @@ public class TaskController {
                             @NotNull @Size(max = 4000) String notes,
                             LocalDate dueDate, @NotNull Task.Priority priority,
                             @NotNull Boolean completed,
-                            @Size(max = 10) List<@NotBlank @Size(max = 40) String> labels) { }
+                            @Size(max = 10) List<@NotBlank @Size(max = 40) String> labels, Task.TaskType taskType) { }
 
     @GetMapping
     public List<Task> list() { return tasks.findAll(Sort.by(Sort.Direction.DESC, "createdAt", "id")); }
@@ -42,6 +42,11 @@ public class TaskController {
     }
 
     private Task save(Task task, TaskInput input) {
+        Task.TaskType type = input.taskType() == null ? task.taskType : input.taskType();
+        if (type != Task.TaskType.DAILY && input.dueDate() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        task.taskType = type;
         task.title = input.title().strip();
         task.notes = input.notes();
         task.dueDate = input.dueDate();

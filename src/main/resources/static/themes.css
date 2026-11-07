@@ -1,40 +1,10 @@
-:root {
-  color-scheme: light;
-  --page: #f7fbff;
-  --sidebar: #f0f7ff;
-  --surface: #fff;
-  --soft: #edf6ff;
-  --selected: #deeeff;
-  --strong-soft: #c7e2ff;
-  --border: #d6e5f4;
-  --text: #23354d;
-  --muted: #536d89;
-  --faint: #687d95;
-  --accent: #246fd1;
-  --hover: #185cb5;
-  --highlight: #408cda;
-  --focus: #79baff;
-}
-:root[data-theme="mint"] {
-  --page:#f6fcf9; --sidebar:#eff9f3; --soft:#eaf8f0; --selected:#d8f0e3;
-  --strong-soft:#bfe4ce; --border:#d4e8dd; --text:#243e34; --muted:#4c7060;
-  --faint:#607f6f; --accent:#22754f; --hover:#185b3c; --highlight:#34885c; --focus:#76c49b;
-}
-:root[data-theme="lavender"] {
-  --page:#fcfaff; --sidebar:#f5f0ff; --soft:#f2ecff; --selected:#e9defc;
-  --strong-soft:#d8c7f6; --border:#e4daf2; --text:#39304c; --muted:#6d5b88;
-  --faint:#7b6a94; --accent:#7850b8; --hover:#603b99; --highlight:#906ac5; --focus:#bea0ec;
-}
-:root[data-theme="peach"] {
-  --page:#fffbf6; --sidebar:#fff3e8; --soft:#fff0e0; --selected:#ffe5ca;
-  --strong-soft:#f5d1ae; --border:#f0dfcc; --text:#49372c; --muted:#7d624e;
-  --faint:#8c705a; --accent:#ab5928; --hover:#8b431d; --highlight:#b96b38; --focus:#e8ac7b;
-}
-:root[data-theme="rose"] {
-  --page:#fff9fb; --sidebar:#fff0f5; --soft:#ffedf3; --selected:#fbdde9;
-  --strong-soft:#f3c3d6; --border:#efd7e1; --text:#49303b; --muted:#80586b;
-  --faint:#8e697b; --accent:#b33f70; --hover:#94305b; --highlight:#c15c88; --focus:#e99bbb;
-}
-input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-progress{accent-color:var(--highlight)}
-progress::-moz-progress-bar{background:var(--highlight)}
+/* Cardcaptor Sakura inspired palettes: blossoms, magical cards, stars, crystal. */
+:root{color-scheme:light;--page:#fff8fb;--sidebar:#fff0f5;--surface:#fffdfd;--soft:#fff0f5;--selected:#fbdde9;--strong-soft:#f1c0d4;--border:#ebceda;--text:#4c3040;--muted:#795568;--faint:#856477;--accent:#b33569;--hover:#932851;--highlight:#ca6489;--focus:#e99cbd;--gold:#b18a45;--ornament:#efbad0;--card-shadow:#b335690c;--high-bg:#fff0ea;--high-edge:#d99b7c;--medium-bg:#fff6db;--medium-edge:#c9a652;--low-bg:#f1f5ed;--low-edge:#8aaa86}
+:root[data-theme="clow"]{--page:#faf4e8;--sidebar:#f3e7d0;--surface:#fffcf3;--soft:#f7ecd6;--selected:#ead7b4;--strong-soft:#ddc399;--border:#d7bf94;--text:#4c3032;--muted:#77574a;--faint:#84634f;--accent:#8b354b;--hover:#702638;--highlight:#b07c43;--focus:#c9946b;--gold:#9c7533;--ornament:#d9c18e;--card-shadow:#8b354b10;--high-bg:#f9e5df;--high-edge:#b56c67;--medium-bg:#f6edcf;--medium-edge:#b08b39;--low-bg:#ecf0df;--low-edge:#8f9d66}
+:root[data-theme="star"]{--page:#fff5fb;--sidebar:#ffeaf5;--surface:#fffcfe;--soft:#ffecf6;--selected:#fad4e9;--strong-soft:#efb4d4;--border:#e7c5db;--text:#4b2f50;--muted:#795579;--faint:#866388;--accent:#a8357a;--hover:#89265f;--highlight:#c568a0;--focus:#df9aca;--gold:#ae8540;--ornament:#e6b1d0;--card-shadow:#a8357a10;--high-bg:#ffeaf2;--high-edge:#d28ba7;--medium-bg:#fff5dc;--medium-edge:#c9a35c;--low-bg:#f3edfa;--low-edge:#ad91ca}
+:root[data-theme="crystal"]{--page:#f8f9ff;--sidebar:#efeffb;--surface:#fefeff;--soft:#f2effb;--selected:#e4ddf5;--strong-soft:#d4c7ec;--border:#d9d3ec;--text:#3d3653;--muted:#685d80;--faint:#786b8d;--accent:#73529f;--hover:#593b83;--highlight:#9b83c4;--focus:#bcaae0;--gold:#a78a58;--ornament:#cec3e8;--card-shadow:#73529f0c;--high-bg:#faeaf2;--high-edge:#c59bb3;--medium-bg:#faf4df;--medium-edge:#c0ad70;--low-bg:#eaf3f6;--low-edge:#8cb4c1}
+body{background-color:var(--page);background-image:url('sakura-petals.svg');background-size:430px 430px;background-attachment:fixed}aside{background:linear-gradient(165deg,var(--sidebar),var(--surface));border-right-color:var(--border)}.brand{color:var(--accent)}.brand::first-letter{color:var(--gold)}.nav.active{box-shadow:inset 3px 0 var(--gold)}header{background:var(--surface)}.task,.stats,.period-card{box-shadow:0 4px 20px var(--card-shadow)}.task,.period-card{border-radius:12px}.period-card{border:1px solid var(--border);border-top:3px solid var(--ornament);background:var(--surface)}.period-heading h3::before{content:'✦';color:var(--gold);margin-right:8px}.calendar-scroll{border:1px solid var(--border);box-shadow:0 4px 20px var(--card-shadow)}.calendar-day.is-today{box-shadow:inset 0 0 0 2px var(--highlight)}.calendar-day.is-today .calendar-date{box-shadow:0 0 0 3px var(--selected)}.calendar-task.high,.badge.high{background:var(--high-bg);border-left-color:var(--high-edge);color:var(--text)}.calendar-task.medium,.badge{background:var(--medium-bg);border-left-color:var(--medium-edge);color:var(--text)}.calendar-task.low,.badge.low{background:var(--low-bg);border-left-color:var(--low-edge);color:var(--text)}dialog{background:var(--surface);border-color:var(--border)}.primary{box-shadow:0 3px 12px var(--card-shadow)}.settings-icon.language-toggle{font-size:11px;font-weight:700;width:38px;white-space:nowrap}.settings-panel{border-top:3px solid var(--ornament)}input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}progress{accent-color:var(--highlight)}progress::-moz-progress-bar{background:var(--highlight)}
+:root[data-theme="clow"] .period-card{outline:1px solid var(--ornament);outline-offset:-6px;border-top-width:1px;padding:20px}:root[data-theme="clow"] body{background-image:url('magic-stars.svg')}:root[data-theme="star"] body{background-image:url('magic-stars.svg')}:root[data-theme="crystal"] body{background-image:radial-gradient(ellipse at top right,var(--soft),transparent 65%)}
+
+/* Tiny character stickers decorate actions without replacing their accessible text. */
+.nav::before,.primary::before,.period-add::before,.character-theme::before,.dialog-heading h2::before{content:'';display:inline-block;flex-shrink:0;background-position:center;background-repeat:no-repeat;background-size:contain;pointer-events:none}.nav::before{width:32px;height:32px;transition:transform .18s ease}.nav[data-view="all"]::before{background-image:url('characters/kero.png')}.nav[data-view="calendar"]::before{background-image:url('characters/spinel.png')}.nav:hover::before{transform:rotate(-8deg)}.primary,.period-add{display:inline-flex;align-items:center;justify-content:center;gap:7px}.primary::before{width:30px;height:30px;background-image:url('characters/sakura.png')}.primary{padding-top:8px;padding-bottom:8px;border-radius:12px}.period-add::before{width:25px;height:25px;background-image:url('characters/sakura.png')}.period-card[data-task-type="WEEKLY"] .period-add::before{background-image:url('characters/kero.png')}.period-card[data-task-type="MONTHLY"] .period-add::before{background-image:url('characters/spinel.png')}.character-theme{padding:2px}.character-theme svg{display:none}.character-theme::before{width:30px;height:30px;background-image:url('characters/kero.png')}.dialog-heading h2{display:flex;align-items:center;gap:10px}.dialog-heading h2::before{width:42px;height:42px;background-image:url('characters/sakura.png')}.character-friends{display:flex;justify-content:center;align-items:center;gap:5px}.character-friends img{object-fit:contain}.character-friends img:nth-child(2){transform:translateY(-7px)}.primary:hover::before,.period-add:hover::before,.character-theme:hover::before{transform:rotate(-6deg)}.primary::before,.period-add::before,.character-theme::before{transition:transform .18s ease}.is-today .calendar-date{position:relative}.is-today .calendar-date::after{content:'';position:absolute;width:23px;height:23px;left:23px;top:-8px;background:url('characters/kero.png') center/contain no-repeat;pointer-events:none}@media(max-width:580px){.nav::before{width:26px;height:26px}.primary::before{width:25px;height:25px}.primary{gap:5px}}@media(prefers-reduced-motion:reduce){.nav::before,.primary::before,.period-add::before,.character-theme::before{transition:none;transform:none!important}}

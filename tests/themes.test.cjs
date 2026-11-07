@@ -28,14 +28,14 @@ function browser(saved, blocked = false) {
 }
 
 test('restores a valid saved palette before DOM ready and defaults safely', () => {
-  assert.equal(browser('lavender').beforeReady, 'lavender');
-  assert.equal(browser('lavender').select.value, 'lavender');
-  assert.equal(browser('unknown').beforeReady, 'sky');
-  assert.equal(browser(null).select.options.length, 5);
+  assert.equal(browser('crystal').beforeReady, 'crystal');
+  assert.equal(browser('crystal').select.value, 'crystal');
+  assert.equal(browser('unknown').beforeReady, 'sakura');
+  assert.equal(browser(null).select.options.length, 4);
 });
 
 test('all palette choices apply immediately and persist for reload', () => {
-  for (const theme of ['sky','mint','lavender','peach','rose']) {
+  for (const theme of ['sakura','clow','star','crystal']) {
     const page = browser(null);
     page.select.value = theme; page.change();
     assert.equal(page.document.documentElement.dataset.theme, theme);
@@ -46,18 +46,18 @@ test('all palette choices apply immediately and persist for reload', () => {
 
 test('blocked storage does not prevent changing themes', () => {
   const page = browser(null, true);
-  page.select.value = 'mint'; page.change();
-  assert.equal(page.document.documentElement.dataset.theme, 'mint');
+  page.select.value = 'clow'; page.change();
+  assert.equal(page.document.documentElement.dataset.theme, 'clow');
   assert.match(page.hint.textContent, /unavailable/);
 });
 
 test('other tabs synchronize theme changes and reset on storage clear', () => {
-  const page = browser('mint');
-  page.storage({key:'unrelated', newValue:'rose'});
-  assert.equal(page.select.value, 'mint');
-  page.storage({key:'workbench.theme', newValue:'rose'});
-  assert.equal(page.select.value, 'rose');
-  assert.equal(page.document.documentElement.dataset.theme, 'rose');
+  const page = browser('clow');
+  page.storage({key:'unrelated', newValue:'star'});
+  assert.equal(page.select.value, 'clow');
+  page.storage({key:'workbench.theme', newValue:'star'});
+  assert.equal(page.select.value, 'star');
+  assert.equal(page.document.documentElement.dataset.theme, 'star');
   page.storage({key:null, newValue:null});
-  assert.equal(page.select.value, 'sky');
+  assert.equal(page.select.value, 'sakura');
 });

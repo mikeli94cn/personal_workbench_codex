@@ -3,6 +3,7 @@ const locale = () => window.workbenchI18n.language;
 function message(selector, key, params = {}) { const el = document.querySelector(selector); el.dataset.message = key; delete el.dataset.retry; el.textContent = t(key, params); }
 const $ = (selector) => document.querySelector(selector);
 let tasks = [], view = 'all', editing = null, busy = false, selectedLabel = '';
+let selectedCalendarWeek = null;
 let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12);
 const labels = { all: 'All tasks', calendar: 'Calendar', today: 'Today', week: 'This week', month: 'This month', upcoming: 'Upcoming', completed: 'Completed' };
 function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -15,7 +16,7 @@ async function api(path = '', options = {}) {
   return response.status === 204 ? null : response.json();
 }
 function node(tag, className, text) { const el = document.createElement(tag); if(className) el.className = className; if(text !== undefined) el.textContent = text; return el; }
-function payload(task) { return { title: task.title, notes: task.notes, dueDate: task.dueDate, priority: task.priority, completed: task.completed, labels: task.labels || [] }; }
+function payload(task) { return { title: task.title, notes: task.notes, dueDate: task.dueDate, priority: task.priority, completed: task.completed, labels: task.labels || [], taskType: task.taskType || 'DAILY' }; }
 function allLabels() { return [...new Set(tasks.flatMap(t => t.labels || []))].sort(); }
 function filterLabel(label) { selectedLabel = label; render(); }
 function render() {
@@ -64,7 +65,7 @@ function render() {
     check.addEventListener('change', () => mutate(async () => { const updated = await api(`/${task.id}`, {method:'PUT',body:JSON.stringify({...payload(task),completed:check.checked})}); tasks = tasks.map(t => t.id === updated.id ? updated : t); }));
     const body = node('div','task-body'), title = node('button','task-title',task.title); title.disabled = busy; title.addEventListener('click',() => openEditor(task)); body.append(title);
     if(task.notes) body.append(node('p','task-notes',task.notes));
-    const meta = node('div','task-meta'); meta.append(node('span',`badge ${task.priority.toLowerCase()}`,t(`${task.priority[0]}${task.priority.slice(1).toLowerCase()} priority`)));
+    const meta = node('div','task-meta'); meta.append(node('span', 'badge', t(task.taskType === 'WEEKLY' ? 'Week tasks' : task.taskType === 'MONTHLY' ? 'Month tasks' : 'Daily tasks'))); meta.append(node('span',`badge ${task.priority.toLowerCase()}`,t(`${task.priority[0]}${task.priority.slice(1).toLowerCase()} priority`)));
     if(task.dueDate) meta.append(node('span',!task.completed && task.dueDate < day ? 'overdue' : '',`${!task.completed && task.dueDate < day ? t('Overdue · ') : ''}${dateLabel(task.dueDate)}`));
     for(const label of task.labels || []) {
       const chip = node('button','label-chip',`# ${label}`); chip.type = 'button';
@@ -102,24 +103,17 @@ function calendarTask(task) {
 }
 function renderCalendar(filtered) {
   const year = calendarMonth.getFullYear(), month = calendarMonth.getMonth();
-  const overview = calendarOverview(filtered, year, month, null);
-  $('#calendar-overview').replaceChildren(periodCard(t('Month overview'), overview.month, overview.monthly));
+  const overview = calendarOverview(filtered, year, month, selectedCalendarWeek);
+  selectedCalendarWeek = overview.week.start;
+  $('#calendar-period-tasks').replaceChildren(
+    periodCard('WEEKLY', overview.week, periodTasks(filtered, 'WEEKLY', overview.week), overview.weeks),
+    periodCard('MONTHLY', overview.month, periodTasks(filtered, 'MONTHLY', overview.month))
+  );
   $('#calendar-month').textContent = calendarMonth.toLocaleDateString(locale(), {month:'long',year:'numeric'});
-  const {dated, undated} = groupCalendarTasks(filtered);
+  const {dated, undated} = groupCalendarTasks(filtered.filter(task => !task.taskType || task.taskType === 'DAILY'));
   const elements = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day => node('div','calendar-weekday',t(day)));
-  elements.unshift(node('div', 'calendar-weekday', t('Week overview')));
   let visibleCount = 0;
-  let dayIndex = 0;
   for(const date of calendarDays(year, month)) {
-    if (dayIndex % 7 === 0) {
-      const week = overview.weeks[dayIndex / 7];
-      const weekly = filtered.filter(task => !task.completed && task.dueDate && task.dueDate >= week.start && task.dueDate <= week.end);
-      const summary = periodCard(t('Week overview'), week, weekly);
-      summary.classList.add('calendar-week-summary');
-      elements.push(summary);
-    }
-    dayIndex++;
-
     const cell = node('section', `calendar-day${date.inMonth ? '' : ' outside-month'}${date.key === today() ? ' is-today' : ''}`);
     cell.setAttribute('aria-label',dateLabel(date.key));
     const add = node('button','calendar-date',String(date.day)); add.type = 'button'; add.disabled = busy;
@@ -133,24 +127,35 @@ function renderCalendar(filtered) {
   $('#calendar-summary').textContent = t(visibleCount === 1 ? '{count} task on displayed dates · Completed tasks are crossed out.' : '{count} tasks on displayed dates · Completed tasks are crossed out.', {count: visibleCount});
   $('#undated-tasks').replaceChildren(...(undated.length ? undated.map(calendarTask) : [node('p','calendar-hint',t('No unscheduled tasks match your filters.'))]));
 }
-function periodCard(title, period, tasks) {
+function periodCard(type, period, periodItems, weeks = null) {
   const card = node('section', 'period-card');
+  card.dataset.taskType = type;
   const heading = node('div', 'period-heading');
-  heading.append(node('h3', '', title), node('span', 'period-count', t('{count} open', {count: tasks.length})));
-  card.append(heading);
-  card.append(node('p', 'calendar-hint', `${dateLabel(period.start)} – ${dateLabel(period.end)}`));
+  heading.append(node('h3', '', t(type === 'WEEKLY' ? 'Week tasks' : 'Month tasks')));
+  const add = node('button', 'period-add', t('＋ New task'));
+  add.type = 'button'; add.disabled = busy;
+  add.addEventListener('click', () => openEditor(null, period.start, type));
+  heading.append(add); card.append(heading);
+  if (weeks) {
+    const select = node('select', 'period-week');
+    select.setAttribute('aria-label', t('Week to review'));
+    for (const week of weeks) {
+      const option = node('option', '', `${dateLabel(week.start)} – ${dateLabel(week.end)}`);
+      option.value = week.start; option.selected = week.start === period.start; select.append(option);
+    }
+    select.addEventListener('change', () => { selectedCalendarWeek = select.value; render(); });
+    card.append(select);
+  } else card.append(node('p', 'calendar-hint', `${dateLabel(period.start)} – ${dateLabel(period.end)}`));
   const list = node('div', 'period-tasks');
-  if (!tasks.length) list.append(node('p', 'calendar-hint', t('No unfinished tasks match this period and your filters.')));
-  for (const task of tasks) {
-    const row = calendarTask(task);
-    row.append(node('span', `period-due${task.dueDate < today() ? ' overdue' : ''}`, `${task.dueDate < today() ? t('Overdue · ') : ''}${dateLabel(task.dueDate)}`));
-    list.append(row);
-  }
+  if (!periodItems.length) list.append(node('p', 'calendar-hint', t('No tasks in this period yet.')));
+  for (const task of periodItems) list.append(calendarTask(task));
   card.append(list);
   return card;
 }
-function openEditor(task = null, dueDate = null) {
+function openEditor(task = null, dueDate = null, taskType = 'DAILY') {
   if(busy) return; editing = task; $('#task-form').reset(); $('#form-error').textContent = '';
+  $('#task-type').value = task?.taskType || taskType;
+  updateTaskType();
   updateEditorText();
   if(task) { $('#title').value = task.title; $('#notes').value = task.notes; $('#due-date').value = task.dueDate || ''; $('#priority').value = task.priority; }
   else if(dueDate || ['today','week','month'].includes(view)) $('#due-date').value = dueDate || today();
@@ -163,11 +168,16 @@ $('#task-form').addEventListener('submit',async event => {
   const taskLabels = [...new Set($('#task-labels').value.split(',').map(label => label.trim().toLowerCase()).filter(Boolean))];
   if(taskLabels.length > 10 || taskLabels.some(label => label.length > 40)) { message('#form-error', 'Use up to 10 labels, each at most 40 characters.'); return; }
   busy = true; $('#save').disabled = true; $('#cancel').disabled = true; $('#close-dialog').disabled = true; $('#form-error').textContent = '';
-  const input = {title:$('#title').value.trim(), notes:$('#notes').value, dueDate:$('#due-date').value || null, priority:$('#priority').value, completed:editing?.completed || false, labels:taskLabels};
+  const input = {title:$('#title').value.trim(), notes:$('#notes').value, dueDate:$('#due-date').value || null, priority:$('#priority').value, completed:editing?.completed || false, labels:taskLabels, taskType:$('#task-type').value};
   try { const saved = await api(editing ? `/${editing.id}` : '',{method:editing ? 'PUT' : 'POST',body:JSON.stringify(input)}); tasks = editing ? tasks.map(t => t.id === saved.id ? saved : t) : [saved,...tasks]; $('#task-dialog').close(); $('#status').textContent = ''; }
   catch(error) { message('#form-error', error.message); }
   finally { busy = false; $('#save').disabled = false; $('#cancel').disabled = false; $('#close-dialog').disabled = false; render(); }
 });
+function updateTaskType() {
+  $('#due-date').required = $('#task-type').value !== 'DAILY';
+  $('#task-period-help').textContent = t('For week or month tasks, choose any date in that period.');
+}
+$('#task-type').addEventListener('change', updateTaskType);
 $('#task-dialog').addEventListener('cancel',event => { if(busy) event.preventDefault(); });
 for(const id of ['close-dialog','cancel']) $(`#${id}`).addEventListener('click',() => $('#task-dialog').close());
 for(const id of ['add-task','empty-add']) $(`#${id}`).addEventListener('click',() => openEditor());
@@ -184,7 +194,7 @@ function updateEditorText() {
   $('#save').textContent = t(editing ? 'Save changes' : 'Create task');
 }
 window.addEventListener('languagechange', () => {
-  updateDate(); updateEditorText(); render();
+  updateDate(); updateEditorText(); updateTaskType(); render();
   for (const selector of ['#status', '#form-error']) {
     const el = $(selector);
     if (el.textContent && el.dataset.message) el.textContent = t(el.dataset.message) + (el.dataset.retry ? ` ${t('Refresh to retry.')}` : '');
