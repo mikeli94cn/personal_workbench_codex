@@ -1,0 +1,45 @@
+:root {
+  color-scheme: light;
+  --page: #f7fbff;
+  --sidebar: #f0f7ff;
+  --surface: #fff;
+  --soft: #edf6ff;
+  --selected: #deeeff;
+  --strong-soft: #c7e2ff;
+  --border: #d6e5f4;
+  --text: #23354d;
+  --muted: #536d89;
+  --faint: #687d95;
+  --accent: #246fd1;
+  --hover: #185cb5;
+  --highlight: #408cda;
+  --focus: #79baff;
+}
+:root[data-theme="mint"] {
+  --page:#f6fcf9; --sidebar:#eff9f3; --soft:#eaf8f0; --selected:#d8f0e3;
+  --strong-soft:#bfe4ce; --border:#d4e8dd; --text:#243e34; --muted:#4c7060;
+  --faint:#607f6f; --accent:#22754f; --hover:#185b3c; --highlight:#34885c; --focus:#76c49b;
+}
+:root[data-theme="lavender"] {
+  --page:#fcfaff; --sidebar:#f5f0ff; --soft:#f2ecff; --selected:#e9defc;
+  --strong-soft:#d8c7f6; --border:#e4daf2; --text:#39304c; --muted:#6d5b88;
+  --faint:#7b6a94; --accent:#7850b8; --hover:#603b99; --highlight:#906ac5; --focus:#bea0ec;
+}
+:root[data-theme="peach"] {
+  --page:#fffbf6; --sidebar:#fff3e8; --soft:#fff0e0; --selected:#ffe5ca;
+  --strong-soft:#f5d1ae; --border:#f0dfcc; --text:#49372c; --muted:#7d624e;
+  --faint:#8c705a; --accent:#ab5928; --hover:#8b431d; --highlight:#b96b38; --focus:#e8ac7b;
+}
+:root[data-theme="rose"] {
+  --page:#fff9fb; --sidebar:#fff0f5; --soft:#ffedf3; --selected:#fbdde9;
+  --strong-soft:#f3c3d6; --border:#efd7e1; --text:#49303b; --muted:#80586b;
+  --faint:#8e697b; --accent:#b33f70; --hover:#94305b; --highlight:#c15c88; --focus:#e99bbb;
+}
+.theme-picker{margin-top:25px;padding:16px 0;border-top:1px solid var(--border)}
+.theme-picker label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:9px}
+.theme-picker select{width:100%;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;padding:10px 8px;cursor:pointer}
+.theme-picker small{display:block;font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5}
+input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+progress{accent-color:var(--highlight)}
+progress::-moz-progress-bar{background:var(--highlight)}
+@media(max-width:580px){.theme-picker{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px 15px;margin-top:18px;padding:14px 0 0}.theme-picker label{margin:0}.theme-picker small{grid-column:1/-1;margin:0}}
