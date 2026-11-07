@@ -4,7 +4,6 @@ function message(selector, key, params = {}) { const el = document.querySelector
 const $ = (selector) => document.querySelector(selector);
 let tasks = [], view = 'all', editing = null, busy = false, selectedLabel = '';
 let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12);
-let selectedCalendarWeek = null;
 const labels = { all: 'All tasks', calendar: 'Calendar', today: 'Today', week: 'This week', month: 'This month', upcoming: 'Upcoming', completed: 'Completed' };
 function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function dateLabel(value) { return new Date(`${value}T12:00:00`).toLocaleDateString(locale(),{month:'short',day:'numeric',year:'numeric'}); }
@@ -20,6 +19,9 @@ function payload(task) { return { title: task.title, notes: task.notes, dueDate:
 function allLabels() { return [...new Set(tasks.flatMap(t => t.labels || []))].sort(); }
 function filterLabel(label) { selectedLabel = label; render(); }
 function render() {
+  const isCalendar = view === 'calendar';
+  document.querySelector('main').classList.toggle('calendar-mode', isCalendar);
+  for (const selector of ['.heading', '.stats', '.toolbar', '#label-filters']) $(selector).hidden = isCalendar;
   const availableLabels = allLabels();
   const filters = ['', ...availableLabels];
   if(selectedLabel && !availableLabels.includes(selectedLabel)) filters.push(selectedLabel);
@@ -40,15 +42,14 @@ function render() {
   $('.subtitle').textContent = period
     ? `${dateLabel(period.start)} – ${dateLabel(period.end)} · ${t(view === 'week' ? 'Unfinished tasks due this week (Mon–Sun).' : 'Unfinished tasks due this month.')}`
     : t('A clear mind starts with a clear list.');
-  const query = $('#search').value.trim().toLowerCase();
-  const filtered = tasks.filter(t => (!selectedLabel || (t.labels || []).includes(selectedLabel)) && matchesTaskView(t, view, reference) && `${t.title} ${t.notes} ${(t.labels || []).join(' ')}`.toLowerCase().includes(query));
+  const query = isCalendar ? '' : $('#search').value.trim().toLowerCase();
+  const filtered = tasks.filter(t => (isCalendar || !selectedLabel || (t.labels || []).includes(selectedLabel)) && matchesTaskView(t, view, reference) && `${t.title} ${t.notes} ${(t.labels || []).join(' ')}`.toLowerCase().includes(query));
   const ranks = {HIGH:0,MEDIUM:1,LOW:2};
   filtered.sort((a,b) => {
     if(view !== 'completed' && a.completed !== b.completed) return Number(a.completed)-Number(b.completed);
     const sort = $('#sort').value;
     return (sort === 'due' ? (a.dueDate || '9999').localeCompare(b.dueDate || '9999') : sort === 'priority' ? ranks[a.priority]-ranks[b.priority] : 0) || b.id-a.id;
   });
-  const isCalendar = view === 'calendar';
   $('#calendar').hidden = !isCalendar;
   $('#task-list').hidden = isCalendar;
   $('#list-footer').hidden = isCalendar;
@@ -101,17 +102,24 @@ function calendarTask(task) {
 }
 function renderCalendar(filtered) {
   const year = calendarMonth.getFullYear(), month = calendarMonth.getMonth();
-  const overview = calendarOverview(filtered, year, month, selectedCalendarWeek);
-  selectedCalendarWeek = overview.week.start;
-  $('#calendar-overview').replaceChildren(
-    periodCard(t('Week overview'), overview.week, overview.weekly, overview.weeks),
-    periodCard(t('Month overview'), overview.month, overview.monthly)
-  );
+  const overview = calendarOverview(filtered, year, month, null);
+  $('#calendar-overview').replaceChildren(periodCard(t('Month overview'), overview.month, overview.monthly));
   $('#calendar-month').textContent = calendarMonth.toLocaleDateString(locale(), {month:'long',year:'numeric'});
   const {dated, undated} = groupCalendarTasks(filtered);
   const elements = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day => node('div','calendar-weekday',t(day)));
+  elements.unshift(node('div', 'calendar-weekday', t('Week overview')));
   let visibleCount = 0;
+  let dayIndex = 0;
   for(const date of calendarDays(year, month)) {
+    if (dayIndex % 7 === 0) {
+      const week = overview.weeks[dayIndex / 7];
+      const weekly = filtered.filter(task => !task.completed && task.dueDate && task.dueDate >= week.start && task.dueDate <= week.end);
+      const summary = periodCard(t('Week overview'), week, weekly);
+      summary.classList.add('calendar-week-summary');
+      elements.push(summary);
+    }
+    dayIndex++;
+
     const cell = node('section', `calendar-day${date.inMonth ? '' : ' outside-month'}${date.key === today() ? ' is-today' : ''}`);
     cell.setAttribute('aria-label',dateLabel(date.key));
     const add = node('button','calendar-date',String(date.day)); add.type = 'button'; add.disabled = busy;
@@ -125,21 +133,12 @@ function renderCalendar(filtered) {
   $('#calendar-summary').textContent = t(visibleCount === 1 ? '{count} task on displayed dates · Completed tasks are crossed out.' : '{count} tasks on displayed dates · Completed tasks are crossed out.', {count: visibleCount});
   $('#undated-tasks').replaceChildren(...(undated.length ? undated.map(calendarTask) : [node('p','calendar-hint',t('No unscheduled tasks match your filters.'))]));
 }
-function periodCard(title, period, tasks, weeks = null) {
+function periodCard(title, period, tasks) {
   const card = node('section', 'period-card');
   const heading = node('div', 'period-heading');
   heading.append(node('h3', '', title), node('span', 'period-count', t('{count} open', {count: tasks.length})));
   card.append(heading);
-  if (weeks) {
-    const select = node('select', 'period-week');
-    select.setAttribute('aria-label', t('Week to review'));
-    for (const week of weeks) {
-      const option = node('option', '', `${dateLabel(week.start)} – ${dateLabel(week.end)}`);
-      option.value = week.start; option.selected = week.start === period.start; select.append(option);
-    }
-    select.addEventListener('change', () => { selectedCalendarWeek = select.value; render(); });
-    card.append(select);
-  } else card.append(node('p', 'calendar-hint', `${dateLabel(period.start)} – ${dateLabel(period.end)}`));
+  card.append(node('p', 'calendar-hint', `${dateLabel(period.start)} – ${dateLabel(period.end)}`));
   const list = node('div', 'period-tasks');
   if (!tasks.length) list.append(node('p', 'calendar-hint', t('No unfinished tasks match this period and your filters.')));
   for (const task of tasks) {
@@ -155,7 +154,7 @@ function openEditor(task = null, dueDate = null) {
   updateEditorText();
   if(task) { $('#title').value = task.title; $('#notes').value = task.notes; $('#due-date').value = task.dueDate || ''; $('#priority').value = task.priority; }
   else if(dueDate || ['today','week','month'].includes(view)) $('#due-date').value = dueDate || today();
-  $('#task-labels').value = task ? (task.labels || []).join(', ') : selectedLabel;
+  $('#task-labels').value = task ? (task.labels || []).join(', ') : view === 'calendar' ? '' : selectedLabel;
   $('#task-dialog').showModal(); $('#title').focus();
 }
 $('#task-form').addEventListener('submit',async event => {
