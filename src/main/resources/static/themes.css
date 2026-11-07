@@ -35,11 +35,6 @@
   --strong-soft:#f3c3d6; --border:#efd7e1; --text:#49303b; --muted:#80586b;
   --faint:#8e697b; --accent:#b33f70; --hover:#94305b; --highlight:#c15c88; --focus:#e99bbb;
 }
-.theme-picker{margin-top:25px;padding:16px 0;border-top:1px solid var(--border)}
-.theme-picker label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:9px}
-.theme-picker select{width:100%;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;padding:10px 8px;cursor:pointer}
-.theme-picker small{display:block;font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5}
 input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 progress{accent-color:var(--highlight)}
 progress::-moz-progress-bar{background:var(--highlight)}
-@media(max-width:580px){.theme-picker{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px 15px;margin-top:18px;padding:14px 0 0}.theme-picker label{margin:0}.theme-picker small{grid-column:1/-1;margin:0}}
