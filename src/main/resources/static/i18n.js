@@ -486,6 +486,84 @@
     "en": "Switch to Chinese"
   }
 };
+  Object.assign(messages, {
+  "Manage labels": {
+    "zh-CN": "管理标签",
+    "en": "Manage labels"
+  },
+  "Choose labels": {
+    "zh-CN": "选择标签",
+    "en": "Choose labels"
+  },
+  "Choose up to 10 labels.": {
+    "zh-CN": "最多选择 10 个标签。",
+    "en": "Choose up to 10 labels."
+  },
+  "Define labels and colors here, then choose them when creating tasks.": {
+    "zh-CN": "在这里定义标签和颜色，创建任务时即可选择。",
+    "en": "Define labels and colors here, then choose them when creating tasks."
+  },
+  "Label name": {
+    "zh-CN": "标签名称",
+    "en": "Label name"
+  },
+  "Color": {
+    "zh-CN": "颜色",
+    "en": "Color"
+  },
+  "Preset colors": {
+    "zh-CN": "预设颜色",
+    "en": "Preset colors"
+  },
+  "Custom color": {
+    "zh-CN": "自定义颜色",
+    "en": "Custom color"
+  },
+  "Hex color": {
+    "zh-CN": "十六进制颜色值",
+    "en": "Hex color"
+  },
+  "Create label": {
+    "zh-CN": "创建标签",
+    "en": "Create label"
+  },
+  "Save color": {
+    "zh-CN": "保存颜色",
+    "en": "Save color"
+  },
+  "Edit color": {
+    "zh-CN": "编辑颜色",
+    "en": "Edit color"
+  },
+  "Edit color for {label}": {
+    "zh-CN": "编辑“{label}”的颜色",
+    "en": "Edit color for {label}"
+  },
+  "Delete label": {
+    "zh-CN": "删除标签",
+    "en": "Delete label"
+  },
+  "Delete label {label}": {
+    "zh-CN": "删除标签“{label}”",
+    "en": "Delete label {label}"
+  },
+  "Delete label “{label}” from all tasks? Tasks will be kept.": {
+    "zh-CN": "确定从所有任务中移除标签“{label}”吗？任务本身会保留。",
+    "en": "Delete label “{label}” from all tasks? Tasks will be kept."
+  },
+  "No labels yet. Create your first label.": {
+    "zh-CN": "暂无标签，创建第一个标签吧。",
+    "en": "No labels yet. Create your first label."
+  },
+  "A label with this name already exists.": {
+    "zh-CN": "已存在同名标签。",
+    "en": "A label with this name already exists."
+  },
+  "Use a name of 1–40 characters and a color like #39a765.": {
+    "zh-CN": "请输入 1–40 个字符的名称，以及 #39a765 格式的颜色值。",
+    "en": "Use a name of 1–40 characters and a color like #39a765."
+  }
+});
   const languages = ['zh-CN', 'en'];
   const key = 'workbench.language';
   let language = 'zh-CN';

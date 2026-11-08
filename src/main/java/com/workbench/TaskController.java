@@ -15,7 +15,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/tasks")
 public class TaskController {
     private final TaskRepository tasks;
-    public TaskController(TaskRepository tasks) { this.tasks = tasks; }
+    private final LabelService labelService;
+    public TaskController(TaskRepository tasks, LabelService labelService) { this.tasks = tasks; this.labelService = labelService; }
 
     public record TaskInput(@NotBlank @Size(max = 200) String title,
                             @NotNull @Size(max = 4000) String notes,
@@ -56,6 +57,7 @@ public class TaskController {
             task.labels = new LinkedHashSet<>();
             input.labels().forEach(label -> task.labels.add(label.strip().toLowerCase(Locale.ROOT)));
         }
+        labelService.ensureDefined(task.labels);
         return tasks.save(task);
     }
 }

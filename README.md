@@ -51,13 +51,24 @@ This explicit demo profile uses an H2 database persisted in `data/`. It is separ
 
 ### Task labels
 
-In the task editor, enter labels separated by commas, for example `self-improvement, health`. Labels are trimmed, stored in lowercase, and deduplicated. Each task supports up to 10 labels of 40 characters each. Edit a task and clear the field to remove its labels.
+Use the **Manage labels** tag icon in the top-right corner (or the button in the task editor) to define labels separately from tasks. Enter a name and choose one of ten preset colors, use the native color picker, or type a six-digit hex value such as `#39a765`. The live preview shows your selection. Definitions persist in the database even when unused.
 
-Click a label on a task or in the filter bar to see matching tasks. Choose **All labels** to clear the filter. Label filters combine with the selected task view and search; labels also appear in search results. New tasks inherit the currently selected label. Labels in the filter bar come from existing tasks, so unused labels disappear when no task uses them.
+In the task editor, select up to 10 colored label chips; click a selected chip to remove it. Opening Manage labels from the editor preserves your draft and current selections. Names are trimmed, stored in lowercase, and limited to 40 characters. Duplicate names are rejected. Existing task labels are automatically imported on startup with their previous category colors.
 
-Restart the Java application after this update, then refresh the browser. With the existing `ddl-auto=update` configuration, Hibernate creates the new `task_labels` table automatically in MySQL or demo mode. Existing tasks start with no labels; no task data needs to be removed.
+Use **Edit color** to recolor an existing label everywhere. Label names stay fixed. Deleting a label requires confirmation and removes that label from tasks while preserving the tasks themselves. Search and label filters continue to work in All tasks. Colors stay consistent across themes and reloads, with contrasting text for custom light and dark colors.
 
-API requests may include `"labels":["self-improvement","health"]`. An empty array removes labels; omitting the field preserves existing labels on updates for compatibility with older clients.
+Restart the Java application, then refresh the browser. Hibernate creates the `label_definitions` table automatically with the existing `ddl-auto=update` configuration; task data is retained. Backend tests and browser verification use isolated H2 databases, not your MySQL data.
+
+Task API requests can still include `"labels":["self-improvement","health"]`. An empty array removes labels; omitting it preserves existing labels on updates. Unknown labels submitted by older clients automatically receive a definition with a default color.
+
+| Method | Label route | Behavior |
+| --- | --- | --- |
+| GET | `/api/labels` | List label definitions, including unused labels |
+| POST | `/api/labels` | Create with `{"name":"housework","color":"#e05263"}`, returns 201 |
+| PUT | `/api/labels/{id}` | Change color with `{"color":"#123abc"}` |
+| DELETE | `/api/labels/{id}` | Remove definition and references from tasks, returns 204 |
+
+Invalid names/colors return 400, duplicate names return 409, and missing definitions return 404.
 
 | Method | Route | Behavior |
 | --- | --- | --- |
